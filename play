@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SPAMSONGS TRANSMISSIONS — Cathedral Mixes from 2075</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&family=Cinzel:wght@400;700&display=swap');
+
+        :root {
+            --void: #030305;
+            --cathedral: #0a0812;
+            --organ: #110d1a;
+            --glitch-cyan: #00ffe5;
+            --glitch-magenta: #ff006e;
+            --glitch-amber: #ffb400;
+            --chrome: #c8c8d8;
+            --dim-chrome: #5a5a72;
+            --vine: #1a3a1a;
+            --biolum: #00ff88;
+        }
+
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            background: var(--void);
+            color: var(--chrome);
+            font-family: 'Share Tech Mono', monospace;
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* ── ANIMATED BACKGROUND ── */
+        .bg-layer { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
+        .bg-layer canvas { width: 100%; height: 100%; }
+
+        .grain {
+            position: fixed; inset: 0; z-index: 1; pointer-events: none;
+            opacity: 0.04;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+        }
+
+        .scanlines {
+            position: fixed; inset: 0; z-index: 2; pointer-events: none;
+            background: repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(0,0,0,0.15) 3px, rgba(0,0,0,0.15) 4px);
+        }
+
+        /* ── LAYOUT ── */
+        .wrapper { position: relative; z-index: 10; max-width: 900px; margin: 0 auto; padding: 0 20px 80px; }
+
+        header { text-align: center; padding: 60px 20px 40px; position: relative; }
+        .broadcast-tag { font-size: 10px; letter-spacing: 6px; color: var(--glitch-cyan); opacity: 0.7; text-transform: uppercase; margin-bottom: 20px; animation: blink 3s step-end infinite; }
+        @keyframes blink { 0%,100% { opacity: 0.7; } 50% { opacity: 0.2; } }
+
+        .logo { font-family: 'Orbitron', sans-serif; font-weight: 900; font-size: clamp(28px, 7vw, 68px); letter-spacing: 0.05em; line-height: 1; text-transform: uppercase; position: relative; display: inline-block; }
+        .logo-main { display: block; color: #fff; text-shadow: 0 0 10px var(--glitch-cyan), 0 0 40px var(--glitch-cyan); animation: logo-pulse 4s ease-in-out infinite; }
+        @keyframes logo-pulse { 0%,100% { text-shadow: 0 0 10px var(--glitch-cyan), 0 0 40px var(--glitch-cyan); } 50% { text-shadow: 0 0 20px var(--glitch-magenta), 0 0 60px var(--glitch-magenta); } }
+
+        .glitch-bar { width: 100%; height: 2px; background: linear-gradient(90deg, transparent, var(--glitch-cyan), var(--glitch-magenta), transparent); margin: 30px 0; animation: glitch-bar-anim 6s ease-in-out infinite; }
+
+        /* ── PLAYER & TRACKLIST ── */
+        .episode-card { border: 1px solid rgba(0,255,229,0.15); background: linear-gradient(135deg, rgba(10,8,18,0.9), rgba(17,13,26,0.9)); padding: 30px; margin-bottom: 30px; position: relative; }
+        .player-core { background: rgba(0,0,0,0.5); border: 1px solid rgba(0,255,229,0.12); padding: 24px; margin-bottom: 30px; }
+
+        .progress-wrap { height: 6px; background: rgba(255,255,255,0.06); cursor: pointer; position: relative; margin: 15px 0; }
+        .progress-bar { height: 100%; background: linear-gradient(90deg, var(--glitch-cyan), var(--glitch-magenta)); width: 0%; position: relative; }
+        
+        .controls { display: flex; align-items: center; gap: 16px; margin-top: 15px; }
+        .btn-play { width: 50px; height: 50px; border-radius: 50%; border: 2px solid var(--glitch-cyan); background: transparent; color: var(--glitch-cyan); cursor: pointer; font-size: 20px; }
+        .btn-play.playing { border-color: var(--glitch-magenta); color: var(--glitch-magenta); }
+
+        .track-item { display: flex; align-items: center; padding: 12px; cursor: pointer; border-bottom: 1px solid rgba(255,255,255,0.05); transition: 0.2s; }
+        .track-item:hover, .track-item.active { background: rgba(0,255,229,0.05); border-color: var(--glitch-cyan); }
+        .track-info { flex: 1; margin-left: 15px; }
+        .track-link { color: var(--dim-chrome); text-decoration: none; font-size: 10px; border: 1px solid; padding: 2px 5px; }
+
+        /* ── CHAT ── */
+        .chat-section { border: 1px solid rgba(255,0,110,0.2); background: rgba(10,5,15,0.9); padding: 20px; }
+        .chat-log { height: 150px; overflow-y: auto; font-size: 12px; margin-bottom: 10px; }
+        .chat-input { width: 80%; background: #000; border: 1px solid var(--glitch-cyan); color: #fff; padding: 8px; }
+        .btn-send { background: var(--glitch-cyan); color: #000; border: none; padding: 8px 15px; cursor: pointer; }
+
+        canvas#viz { width: 100%; height: 80px; background: #000; border: 1px solid #333; }
+    </style>
+</head>
+<body>
+
+<div class="grain"></div>
+<div class="scanlines"></div>
+<canvas id="bg-canvas" class="bg-layer"></canvas>
+
+<div class="wrapper">
+    <header>
+        <div class="broadcast-tag">▶ LIVE TRANSMISSION — ST. JOHN'S CATHEDRAL — 2075</div>
+        <div class="logo">
+            <span class="logo-main">SPAMSONGS</span>
+        </div>
+        <div class="glitch-bar"></div>
+    </header>
+
+    <div class="episode-card">
+        <h2 style="font-family: Cinzel;">The Spamsong Ritual</h2>
+        <p style="font-size: 12px; color: var(--dim-chrome);">Liturgy for the post-human age. ECHO-7 conducts the choir using the digital ghosts of 2026.</p>
+    </div>
+
+    <div class="visualizer-wrap">
+        <canvas id="viz"></canvas>
+    </div>
+
+    <div class="player-core">
+        <div id="np-title" style="font-weight: bold; color: var(--glitch-cyan);">Initialize Transmission...</div>
+        <div class="progress-wrap" id="progress-wrap">
+            <div class="progress-bar" id="progress-bar"></div>
+        </div>
+        <div class="controls">
+            <button class="btn-play" id="btn-play">▶</button>
+            <input type="range" id="vol-slider" min="0" max="1" step="0.01" value="0.8">
+            <span id="time-cur">0:00</span> / <span id="time-dur">0:00</span>
+        </div>
+    </div>
+
+    <div id="tracklist"></div>
+
+    <div class="chat-section">
+        <div class="chat-log" id="chat-log">
+            <div style="color: var(--glitch-cyan);">ECHO-7: Welcome, flesh-remnant. The choir is ready.</div>
+        </div>
+        <input type="text" id="chat-input" class="chat-input" placeholder="Type to the machine...">
+        <button id="btn-send" class="btn-send">SEND</button>
+    </div>
+</div>
+
+<script>
+const TRACKS = [
+    { id: '23735e39-6949-4b01-9c4b-a31fbc2f2e00', title: 'Rusted Tango from 2075', dur: '3:19', spam: 'NIGERIAN PRINCE REQUIEM' },
+    { id: '18f81ad9-d305-4907-9efd-a3160932435c', title: 'Rusted Tango (Remix)', dur: '3:54', spam: 'HOT LOCAL SINGLES' },
+    { id: '20fb8ed2-7568-4e57-a4da-cd2d545390be', title: 'Blue Bus Sways', dur: '1:45', spam: 'CLAIM INHERITANCE' },
+    { id: '4f6dd1a9-0a05-42e6-aa48-ce01e9cf31a3', title: 'Blue Bus Sways (Remix)', dur: '2:09', spam: 'BE THE MAN' },
+    { id: 'a90484d5-893d-4431-8478-b2d286247897', title: 'Recording 07-04-2026', dur: '4:39', spam: 'ACCOUNT EMPTY' }
+];
+
+let currentTrack = 0;
+let isPlaying = false;
+let audio = new Audio();
+
+const tracklistEl = document.getElementById('tracklist');
+TRACKS.forEach((t, i) => {
+    const item = document.createElement('div');
+    item.className = 'track-item';
+    item.innerHTML = `<span>${i+1}</span><div class="track-info"><div>${t.title}</div><small>${t.spam}</small></div><a class="track-link" href="https://suno.com/song/${t.id}" target="_blank">SUNO</a>`;
+    item.onclick = () => loadTrack(i);
+    tracklistEl.appendChild(item);
+});
+
+function loadTrack(i) {
+    currentTrack = i;
+    const t = TRACKS[i];
+    document.getElementById('np-title').innerText = t.title + " // " + t.spam;
+    audio.src = `https://cdn1.suno.ai/${t.id}.mp3`;
+    audio.play().then(() => setPlaying(true)).catch(() => {
+        console.log("Audio block - simulation mode active");
+        setPlaying(true);
+    });
+}
+
+function setPlaying(val) {
+    isPlaying = val;
+    document.getElementById('btn-play').innerText = val ? 'Ⅱ' : '▶';
+    document.getElementById('btn-play').classList.toggle('playing', val);
+}
+
+document.getElementById('btn-play').onclick = () => {
+    if (!audio.src) return loadTrack(0);
+    isPlaying ? audio.pause() : audio.play();
+    setPlaying(!isPlaying);
+};
+
+audio.ontimeupdate = () => {
+    const pct = (audio.currentTime / audio.duration) * 100;
+    document.getElementById('progress-bar').style.width = pct + "%";
+    document.getElementById('time-cur').innerText = Math.floor(audio.currentTime/60) + ":" + String(Math.floor(audio.currentTime%60)).padStart(2,'0');
+};
+
+// Visualizer Logic
+const canvas = document.getElementById('viz');
+const ctx = canvas.getContext('2d');
+function draw() {
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    for(let i=0; i<60; i++) {
+        let h = isPlaying ? Math.random() * 60 : 5;
+        ctx.fillStyle = i % 2 === 0 ? '#00ffe5' : '#ff006e';
+        ctx.fillRect(i*10, 80-h, 8, h);
+    }
+    requestAnimationFrame(draw);
+}
+draw();
+
+// Background Particles
+const bg = document.getElementById('bg-canvas');
+const bctx = bg.getContext('2d');
+bg.width = window.innerWidth; bg.height = window.innerHeight;
+function drawBg() {
+    bctx.fillStyle = 'rgba(3,3,5,0.2)';
+    bctx.fillRect(0,0,bg.width,bg.height);
+    bctx.fillStyle = '#00ffe533';
+    for(let i=0; i<30; i++) {
+        bctx.beginPath();
+        bctx.arc(Math.random()*bg.width, Math.random()*bg.height, 1, 0, Math.PI*2);
+        bctx.fill();
+    }
+    requestAnimationFrame(drawBg);
+}
+drawBg();
+</script>
+</body>
+</html>
